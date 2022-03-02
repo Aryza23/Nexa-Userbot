@@ -65,7 +65,7 @@ def get_readable_time(seconds: int) -> str:
     for x in range(len(time_list)):
         time_list[x] = str(time_list[x]) + time_suffix_list[x]
     if len(time_list) == 4:
-        ping_time += time_list.pop() + ", "
+        ping_time += f'{time_list.pop()}, '
     time_list.reverse()
     ping_time += ":".join(time_list)
     return ping_time
@@ -84,11 +84,11 @@ async def pyroalive(_, message: Message):
     alive_bef_msg = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
     # Alive Message
     get_alive_msg = await get_custom_alive_msg()
-    custom_alive_msg = get_alive_msg if get_alive_msg else "Heya, I'm Using Nexa Userbot"
+    custom_alive_msg = get_alive_msg or "Heya, I'm Using Nexa Userbot"
     # Alive Pic
     gap = await get_custom_var(var="ALIVE_PIC")
     g_al_pic = list(gap)
-    alive_pic = g_al_pic[1] if g_al_pic[1] else "cache/NEXAUB.png"
+    alive_pic = g_al_pic[1] or "cache/NEXAUB.png"
     NEXAUB_VERSION = get_nexaub_version()
     alive_msg = f"""
 **{custom_alive_msg}**
@@ -138,7 +138,7 @@ async def get_alive(_, message: Message):
     g_alive_msg = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
     try:
         get_al = await get_custom_alive_msg()
-        saved_alive_msg = get_al if get_al else "No Custom Message is saved!"
+        saved_alive_msg = get_al or "No Custom Message is saved!"
         await g_alive_msg.edit(f"**Current Alive Message:** \n{saved_alive_msg}")
     except Exception as e:
         print(e)
@@ -186,5 +186,5 @@ async def get_alive_pic(_, message: Message):
 @nexaub_on_cmd(command="clc", modlue=mod_file)
 async def egg_clc(_, message: Message):
     clc_func = await check_or_set_log_channel()
-    lc_id = clc_func[1] if clc_func[1]  else None
+    lc_id = clc_func[1] or None
     await e_or_r(nexaub_message=message, msg_text=f"**Is Log Channel Set?** `{clc_func[0]}` \n**Channel ID:** `{lc_id}`")

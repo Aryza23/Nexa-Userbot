@@ -46,10 +46,9 @@ async def block_dumb(_, message: Message):
   try:
     if r_msg:
       await NEXAUB.block_user(r_msg.from_user.id)
-      await gonna_block_u.edit("`Successfully Blocked This User`")
     else:
       await NEXAUB.block_user(shit_id)
-      await gonna_block_u.edit("`Successfully Blocked This User`")
+    await gonna_block_u.edit("`Successfully Blocked This User`")
   except Exception as lol:
     await gonna_block_u.edit(f"**Error:** `{lol}`")
 
@@ -80,7 +79,7 @@ async def count_chats():
   async for dialog in NEXAUB.iter_dialogs():
     try:
       await NEXAUB.get_dialogs_count()
-      total = total+1
+      total += 1
     except FloodWait as e:
       await time.sleep(e.x)
   return total

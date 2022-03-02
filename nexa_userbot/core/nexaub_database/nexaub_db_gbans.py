@@ -23,10 +23,7 @@ async def get_gbanned():
 async def get_gban_reason(gban_id):
     gban_user_id = int(gban_id)
     pr_gbanned = await nexaub_gban.find_one({"gbanned_usr": gban_user_id})
-    if pr_gbanned:
-        return pr_gbanned["reason_for_gban"]
-    else:
-        return None
+    return pr_gbanned["reason_for_gban"] if pr_gbanned else None
 
 # Ungban a user
 async def ungban_usr(gban_id):

@@ -40,11 +40,11 @@ requirements_path = path.join(
 
 
 async def gen_chlog(repo, diff):
-    ch_log = ""
     d_form = "On %d/%m/%y at %H:%M:%S"
-    for c in repo.iter_commits(f"HEAD..upstream/{diff}", max_count=10):
-        ch_log += f"**#{c.count()}** : {c.committed_datetime.strftime(d_form)} : [{c.summary}]({UPSTREAM_REPO_URL.rstrip('/')}/commit/{c}) by `{c.author}`\n"
-    return ch_log
+    return "".join(
+        f"**#{c.count()}** : {c.committed_datetime.strftime(d_form)} : [{c.summary}]({UPSTREAM_REPO_URL.rstrip('/')}/commit/{c}) by `{c.author}`\n"
+        for c in repo.iter_commits(f"HEAD..upstream/{diff}", max_count=10)
+    )
 
 
 async def updateme_requirements():
@@ -66,13 +66,9 @@ async def upstream(client, message):
     status = await e_or_r(nexaub_message=message, msg_text=f"`Checking For Updates from` [Nexa-Userbot]({UPSTREAM_REPO_URL}) `Repo...`")
     conf = get_arg(message)
     off_repo = UPSTREAM_REPO_URL
-    txt = "`Oops! Updater Can't Continue...`"
-    txt += "\n\n**LOGTRACE:**\n"
     try:
         repo = Repo(search_parent_directories=True)
     except InvalidGitRepositoryError as error:
-        if conf != "now":
-            pass
         repo = Repo.init()
         origin = repo.create_remote("upstream", off_repo)
         origin.fetch()
@@ -106,23 +102,21 @@ async def upstream(client, message):
 **🏠 Branch:** [{ac_br}]({UPSTREAM_REPO_URL}/tree/{ac_br})
 **🕊 New version:** `{req_ver.json()["version"]}`
 **☘️ Changelog (last >10):** \n\n{changelog}"""
-            if len(changelog_str) > 4096:
-                await status.edit("`Changelog is too big, sending it as a file!`")
-                file = open("NEXAUB_git_commit_log.txt", "w+")
-                file.write(changelog_str)
-                file.close()
-                await NEXAUB.send_document(
-                    message.chat.id,
-                    "NEXAUB_git_commit_log.txt",
-                    caption=f"Do `{Config.CMD_PREFIX}update now` to update your Nexa-Userbot",
-                    reply_to_message_id=status.message_id,
-                )
-                remove("NEXAUB_git_commit_log.txt")
-            else:
+            if len(changelog_str) <= 4096:
                 return await status.edit(
                     f"{changelog_str}\n\nDo `.update now` to update your Nexa-Userbot",
                     disable_web_page_preview=True,
                 )
+            await status.edit("`Changelog is too big, sending it as a file!`")
+            with open("NEXAUB_git_commit_log.txt", "w+") as file:
+                file.write(changelog_str)
+            await NEXAUB.send_document(
+                message.chat.id,
+                "NEXAUB_git_commit_log.txt",
+                caption=f"Do `{Config.CMD_PREFIX}update now` to update your Nexa-Userbot",
+                reply_to_message_id=status.message_id,
+            )
+            remove("NEXAUB_git_commit_log.txt")
         else:
             await status.edit(
                 f"**✨ Nexa-Userbot is Up-to-date** \n\n**Branch:** [{ac_br}]({UPSTREAM_REPO_URL}/tree/{ac_br})\n",
@@ -132,16 +126,21 @@ async def upstream(client, message):
         return
     if Config.HEROKU_API_KEY is not None:
         heroku = heroku3.from_key(Config.HEROKU_API_KEY)
-        heroku_app = None
         heroku_applications = heroku.apps()
         if not Config.HEROKU_APP_NAME:
             await status.edit("**Error:** `Please add HEROKU_APP_NAME variable to continue update!`")
             return repo.__del__()
-        for app in heroku_applications:
-            if app.name == Config.HEROKU_APP_NAME:
-                heroku_app = app
-                break
+        heroku_app = next(
+            (
+                app
+                for app in heroku_applications
+                if app.name == Config.HEROKU_APP_NAME
+            ),
+            None,
+        )
+
         if heroku_app is None:
+            txt = "`Oops! Updater Can't Continue...`" + "\n\n**LOGTRACE:**\n"
             await status.edit(f"{txt}\n`Invalid Heroku credentials.`")
             return repo.__del__()
         await status.edit(
@@ -150,8 +149,9 @@ async def upstream(client, message):
         ups_rem.fetch(ac_br)
         repo.git.reset("--hard", "FETCH_HEAD")
         heroku_git_url = heroku_app.git_url.replace(
-            "https://", "https://api:" + Config.HEROKU_API_KEY + "@"
+            "https://", f"https://api:{Config.HEROKU_API_KEY}@"
         )
+
         if "heroku" in repo.remotes:
             remote = repo.remote("heroku")
             remote.set_url(heroku_git_url)
@@ -202,9 +202,8 @@ async def log(client, message):
         server = heroku_conn.get_app_log(Config.HEROKU_APP_NAME, dyno='worker', lines=100, source='app', timeout=100)
         f_logs = server
         if len(f_logs) > 4096:
-            file = open("logs.txt", "w+")
-            file.write(f_logs)
-            file.close()
+            with open("logs.txt", "w+") as file:
+                file.write(f_logs)
             await NEXAUB.send_document(message.chat.id, "logs.txt", caption=f"Logs of `{Config.HEROKU_APP_NAME}`")
             remove("logs.txt")
     except Exception as e:

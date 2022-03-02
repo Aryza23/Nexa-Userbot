@@ -34,8 +34,7 @@ def paste_isgd(url):
     main_url = f"https://is.gd/create.php?format=json&url={url}"
     pasted_url = requests.post(main_url)
     json_data = pasted_url.json()
-    short_url = json_data['shorturl']
-    return short_url
+    return json_data['shorturl']
 
 @nexaub_on_cmd(command="short", modlue=mod_file)
 async def cutr_short(_, message: Message):
@@ -43,7 +42,7 @@ async def cutr_short(_, message: Message):
     short_msg = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
     if replied_msg:
         to_short = replied_msg.text
-    elif not replied_msg:
+    else:
         try:
             to_short = get_arg(message)
         except Exception as e:

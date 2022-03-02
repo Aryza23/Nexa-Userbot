@@ -37,7 +37,7 @@ async def paste(client, message):
     replied_msg = message.reply_to_message
     tex_t = get_arg(message)
     message_s = tex_t
-    if not tex_t:
+    if not message_s:
         if not replied_msg:
             await paste_msg.edit("`Reply To File or Send This Command With Text!`")
             return
@@ -47,7 +47,7 @@ async def paste(client, message):
             message_s = m_list
             print(message_s)
             os.remove(file)
-        elif replied_msg.text:
+        else:
             message_s = replied_msg.text
     haste_url = "https://hastebin.com/documents"
     haste_paste = requests.post(haste_url, data=message_s.encode('utf-8'), timeout=3)

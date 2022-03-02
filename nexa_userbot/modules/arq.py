@@ -99,20 +99,18 @@ async def arq_lyrics(_, message: Message):
     lyrics_msg = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
     keyword = get_arg(message)
     r_keyword = message.reply_to_message
-    if not keyword:
-        if r_keyword:
-            keyword = r_keyword.text
-        else:
-            return await lyrics_msg.edit("`Give a song name to get lyrics!`")
-    else:
+    if keyword:
         keyword = keyword
+    elif r_keyword:
+        keyword = r_keyword.text
+    else:
+        return await lyrics_msg.edit("`Give a song name to get lyrics!`")
     f_lyrics = await ARQ_NEXAUB(keyword=keyword, is_lyrics=True)
     nyc_lyrics = f_lyrics.result
     if len(nyc_lyrics) > 4096:
         await lyrics_msg.edit("`Wah!! Long Lyrics tho!, Wait I'm sending it as a file!`")
-        lyric_file = open("lyrics_NEXAUB.txt", "w+")
-        lyric_file.write(nyc_lyrics)
-        lyric_file.close()
+        with open("lyrics_NEXAUB.txt", "w+") as lyric_file:
+            lyric_file.write(nyc_lyrics)
         await lyrics_msg.reply_document("lyrics_NEXAUB.txt")
         os.remove("lyrics_NEXAUB.txt")
         await lyrics_msg.delete()
@@ -124,13 +122,9 @@ async def arq_lyrics(_, message: Message):
 async def arq_trans(_, message: Message):
     trans_msg = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
     to_tr_text = get_arg(message)
-    r_tr_text = message.reply_to_message
-    if r_tr_text:
+    if r_tr_text := message.reply_to_message:
         trans_this = r_tr_text.text
-        if not to_tr_text:
-            dest_l = "en"
-        else:
-            dest_l = to_tr_text
+        dest_l = "en" if not to_tr_text else to_tr_text
     else:
         try:
             string_c = to_tr_text.split("!")
@@ -149,9 +143,8 @@ async def arq_trans(_, message: Message):
 """
     if len(translated_str) > 4096:
         await trans_msg.edit("`Wah!! Translated Text So Long Tho!, Give me a minute, I'm sending it as a file!`")
-        tr_txt_file = open("translated_NEXAUB.txt", "w+")
-        tr_txt_file.write(translated_str)
-        tr_txt_file.close()
+        with open("translated_NEXAUB.txt", "w+") as tr_txt_file:
+            tr_txt_file.write(translated_str)
         await trans_msg.reply_document("translated_NEXAUB.txt")
         os.remove("translated_NEXAUB.txt")
         await trans_msg.delete()
@@ -164,13 +157,12 @@ async def arq_wiki(_, message: Message):
     wiki_msg = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
     wiki_key = get_arg(message)
     r_wiki_key = message.reply_to_message
-    if not wiki_key:
-        if r_wiki_key:
-            wiki_this = r_wiki_key.text
-        else:
-            return await wiki_msg.edit("`Give something to search!`")
-    else:
+    if wiki_key:
         wiki_this = wiki_key
+    elif r_wiki_key:
+        wiki_this = r_wiki_key.text
+    else:
+        return await wiki_msg.edit("`Give something to search!`")
     s_wiki = await ARQ_NEXAUB(is_wiki=True, keyword=wiki_this)
     wiki_txt = f"""
 **Title:** `{s_wiki.title}`
@@ -179,9 +171,8 @@ async def arq_wiki(_, message: Message):
 """
     if len(wiki_txt) > 4096:
         await wiki_msg.edit("`Big stuff to read!! Lemme send it as a text file :)`")
-        wiki_txt_file = open("wiki_NEXAUB.txt", "w+")
-        wiki_txt_file.write(wiki_txt)
-        wiki_txt_file.close()
+        with open("wiki_NEXAUB.txt", "w+") as wiki_txt_file:
+            wiki_txt_file.write(wiki_txt)
         await wiki_msg.reply_document("wiki_NEXAUB.txt")
         os.remove("wiki_NEXAUB.txt")
         await wiki_msg.delete()
@@ -194,13 +185,12 @@ async def arq_reddit(_, message: Message):
     red_msg = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
     reddit_key = get_arg(message)
     r_reddit_msg = message.reply_to_message
-    if not reddit_key:
-        if r_reddit_msg:
-            reddit_this = r_reddit_msg.text
-        else:
-            return await red_msg.edit("`Give some text to quote!`")
-    else:
+    if reddit_key:
         reddit_this = reddit_key
+    elif r_reddit_msg:
+        reddit_this = r_reddit_msg.text
+    else:
+        return await red_msg.edit("`Give some text to quote!`")
     reddit_now = await ARQ_NEXAUB(is_reddit=True, keyword=reddit_this)
     try:
         _reddit = reddit_now.result

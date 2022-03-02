@@ -53,8 +53,7 @@ mod_file = os.path.basename(__file__)
 async def set_sudo(_, message: Message):
   sudo_msg = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
   sudo_id = str(get_arg(message))
-  r_sudo_msg = message.reply_to_message
-  if r_sudo_msg:
+  if r_sudo_msg := message.reply_to_message:
     sudo_user_id = str(r_sudo_msg.from_user.id)
   else:
     sudo_user_id = str(sudo_id)
@@ -62,8 +61,6 @@ async def set_sudo(_, message: Message):
   if is_sudo is True:
     await sudo_msg.edit(f"**User** `{sudo_user_id}` **is already a sudo user**")
     return
-  else:
-    pass
   is_id_ok = sudo_user_id.isnumeric()
   if is_id_ok is True:
     await add_sudo(sudo_user_id)
@@ -77,8 +74,7 @@ async def set_sudo(_, message: Message):
 async def set_sudo(_, message: Message):
   sudo_msg = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
   sudo_id = str(get_arg(message))
-  r_sudo_msg = message.reply_to_message
-  if r_sudo_msg:
+  if r_sudo_msg := message.reply_to_message:
     sudo_user_id = str(r_sudo_msg.from_user.id)
   else:
     sudo_user_id = str(sudo_id)
@@ -86,8 +82,6 @@ async def set_sudo(_, message: Message):
   if is_sudo is False:
     await sudo_msg.edit(f"**User** `{sudo_user_id}` **isn't a sudo user lol!**")
     return
-  else:
-    pass
   is_id_ok = sudo_user_id.isnumeric()
   if is_id_ok is True:
     await remove_sudo(sudo_user_id)
@@ -99,35 +93,30 @@ async def set_sudo(_, message: Message):
 @nexaub_on_cmd(command="setvar", modlue=mod_file)
 async def setmongovar(_, message: Message):
   setvr_msg = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
-  var_val = get_arg(message)
-  if not var_val:
-    return await setvr_msg.edit("`Give Variable and Value to set!`")
-  else:
+  if var_val := get_arg(message):
     s_var = var_val.split(" ")
-    variable, value = s_var 
+    variable, value = s_var
     await set_custom_var(var=variable, value=value)
     await setvr_msg.edit(f"**Successfully Added Custom Var** \n\n**Var:** `{variable}` \n**Val:** `{value}`")
+  else:
+    return await setvr_msg.edit("`Give Variable and Value to set!`")
 
 @nexaub_on_cmd(command="getvar", modlue=mod_file)
 async def get_var(_, message: Message):
   g_var = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
-  var_g = get_arg(message)
-  if not var_g:
+  if not (var_g := get_arg(message)):
     return await g_var.edit("`Give Variable and Value to set!`")
+  g_var_s = await get_custom_var(var=var_g)
+  if g_var_s is None:
+    return await g_var.edit("`Is that var exists?`")
   else:
-    g_var_s = await get_custom_var(var=var_g)
-    if g_var_s is None:
-      return await g_var.edit("`Is that var exists?`")
-    else:
-      await g_var.edit(f"**Var:** `{var_g}` \n**Val:** `{g_var_s}`")
+    await g_var.edit(f"**Var:** `{var_g}` \n**Val:** `{g_var_s}`")
 
 @nexaub_on_cmd(command="delvar", modlue=mod_file)
 async def del_var(_, message: Message):
   d_var = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
-  var_d = get_arg(message)
-  if not var_d:
+  if not (var_d := get_arg(message)):
     return await d_var.edit("`Give Variable to delete!`")
-  else:
-    deld_var = await del_custom_var(var_d)
-    if deld_var:
-      await d_var.edit(f"**Successfully Deleted** `{var_d}` **Var from database!**")
+  deld_var = await del_custom_var(var_d)
+  if deld_var:
+    await d_var.edit(f"**Successfully Deleted** `{var_d}` **Var from database!**")

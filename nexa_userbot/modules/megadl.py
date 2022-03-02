@@ -43,8 +43,7 @@ megadir = "./NexaUb/Megatools"
 # Run bash cmd in python
 def nexa_mega_runner(command):
     run = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    shell_ouput = run.stdout.read()[:-1].decode("utf-8")
-    return shell_ouput
+    return run.stdout.read()[:-1].decode("utf-8")
 
 # Splitting large files
 def split_files(input_file, out_base_path):
@@ -59,7 +58,7 @@ async def megatoolsdl(_, message: Message):
     megatools_msg = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
     url = message.text
     cli_user_id = str(message.from_user.id)
-    cli_download_path = megadir + "/" + cli_user_id
+    cli_download_path = f'{megadir}/{cli_user_id}'
     if len(message.command) < 2:
         await megatools_msg.edit("`Please send a valid mega.nz link to download!`")
         return
@@ -75,7 +74,10 @@ async def megatoolsdl(_, message: Message):
         return
     else:
         os.makedirs(cli_download_path)
-    await megatools_msg.edit(f"`Starting to download file / folder from mega.nz!` \n\nThis may take sometime. Depends on your file / folder size.")
+    await megatools_msg.edit(
+        "`Starting to download file / folder from mega.nz!` \\n\\nThis may take sometime. Depends on your file / folder size."
+    )
+
     megacmd = f"megadl --limit-speed 0 --path {cli_download_path} {cli_url}"
     loop = get_running_loop()
     await loop.run_in_executor(None, partial(nexa_mega_runner, megacmd))
@@ -87,7 +89,7 @@ async def megatoolsdl(_, message: Message):
         for nexa_m in folder_f:
             file_size = os.stat(nexa_m).st_size
             if file_size > 2040108421:
-                split_out_dir = nexaub_path_f + "splitted_files"
+                split_out_dir = f'{nexaub_path_f}splitted_files'
                 await megatools_msg.edit("`Large File Detected, Trying to split it!`")
                 loop = get_running_loop()
                 await loop.run_in_executor(None, partial(split_files(input_file=nexa_m, out_base_path=split_out_dir)))

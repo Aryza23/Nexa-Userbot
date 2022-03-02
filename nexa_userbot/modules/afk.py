@@ -34,10 +34,7 @@ mod_file = os.path.basename(__file__)
 # Check if afk
 async def u_afk_bro(filter, client, message):
     if_afk = await get_afk()
-    if if_afk:
-        return True
-    else:
-        return False
+    return bool(if_afk)
 
 # Creating a custom filter
 ya_afk = filters.create(func=u_afk_bro, name="is_ya_afk")

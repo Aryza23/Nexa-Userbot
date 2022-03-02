@@ -34,13 +34,12 @@ async def e_or_r(nexaub_message, msg_text, parse_mode="md", disable_web_page_pre
         return await message.edit(msg_text, parse_mode=parse_mode, disable_web_page_preview=disable_web_page_preview)
     if not message.from_user:
         return await message.edit(msg_text, parse_mode=parse_mode, disable_web_page_preview=disable_web_page_preview)
-    if message.from_user.id in SUDO_IDS:
-        if message.reply_to_message:
-            return await message.reply_to_message.reply_text(msg_text, parse_mode=parse_mode, disable_web_page_preview=disable_web_page_preview)
-        else:
-            return await message.reply_text(msg_text, parse_mode=parse_mode, disable_web_page_preview=disable_web_page_preview)
-    else:
+    if message.from_user.id not in SUDO_IDS:
         return await message.edit(msg_text, parse_mode=parse_mode, disable_web_page_preview=disable_web_page_preview)
+    if message.reply_to_message:
+        return await message.reply_to_message.reply_text(msg_text, parse_mode=parse_mode, disable_web_page_preview=disable_web_page_preview)
+    else:
+        return await message.reply_text(msg_text, parse_mode=parse_mode, disable_web_page_preview=disable_web_page_preview)
 
 
 
@@ -59,17 +58,11 @@ def nexaub_on_cmd(
     def decorate_nexaub(func):
         async def x_wrapper(client, message):
             nexaub_chat_type = message.chat.type
-            if admins_only:
-                if nexaub_chat_type in ["group", "supergroup", "channel"]:
-                    usr = await NEXAUB.get_me()
-                    how_usr = await message.chat.get_member(usr.id)
-                    if how_usr.status in ["creator", "administrator"]:
-                        pass
-                    else:
-                        return await e_or_r(nexaub_message=message, msg_text="`First you need to be an admin of this chat!`")
-                # It's PM Bois! Everyone is an admin in PM!
-                else:
-                    pass
+            if admins_only and nexaub_chat_type in ["group", "supergroup", "channel"]:
+                usr = await NEXAUB.get_me()
+                how_usr = await message.chat.get_member(usr.id)
+                if how_usr.status not in ["creator", "administrator"]:
+                    return await e_or_r(nexaub_message=message, msg_text="`First you need to be an admin of this chat!`")
             if only_pm and nexaub_chat_type != "private":
                 await message.edit("`Yo, this command is only for PM!`")
                 return
@@ -93,9 +86,8 @@ def nexaub_on_cmd(
 Forward this to @NexaUB_Support
 """
                 if len(error_text) > 4000:
-                    file = open("error_nexaub.txt", "w+")
-                    file.write(error_text)
-                    file.close()
+                    with open("error_nexaub.txt", "w+") as file:
+                        file.write(error_text)
                     await NEXAUB.send_document(LOG_CHANNEL_ID, "error_nexaub.txt", caption="`Error of Nexa Userbot`")
                     os.remove("error_nexaub.txt")
                 else:
@@ -126,9 +118,8 @@ def nexaub_on_cf(custom_filters):
 Forward this to @NexaUB_Support
 """
                 if len(error_text) > 4000:
-                    file = open("error_nexaub.txt", "w+")
-                    file.write(error_text)
-                    file.close()
+                    with open("error_nexaub.txt", "w+") as file:
+                        file.write(error_text)
                     await NEXAUB.send_document(LOG_CHANNEL_ID, "error_nexaub.txt", caption="`Error of Nexa Userbot`")
                     os.remove("error_nexaub.txt")
                 else:

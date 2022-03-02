@@ -33,9 +33,8 @@ async def help(_, message: Message):
         await help_user_msg.edit(text)
         return
     else:
-        module_help = CMD_HELP.get(args, False)
-        if not module_help:
+        if module_help := CMD_HELP.get(args, False):
+            await help_user_msg.edit(module_help)
+        else:
             await help_user_msg.edit("`Invalid Module Name!`")
             return
-        else:
-            await help_user_msg.edit(module_help)

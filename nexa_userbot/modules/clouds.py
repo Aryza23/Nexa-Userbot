@@ -57,16 +57,15 @@ For functionality of this function you must set the `MEGA_EMAIL` and `MEGA_PASS`
 **Note ⚠️:**
     These emails and passwords are just dummy ones. So replace them with your own email and password before running the command."""
         )
-    else:
-        r_msg = message.reply_to_message
-        if not r_msg:
-            return await meganz_msg.edit("`Reply to a telegram media first!`")
-        # Downloading the file
-        m_file = await r_msg.download()
-        # Login to mega.nz account
-        m_client = await loginToMega(creds)
-        loop = get_running_loop()
-        await loop.run_in_executor(None, partial(UploadToMega, message, m_file, m_client))
+    r_msg = message.reply_to_message
+    if not r_msg:
+        return await meganz_msg.edit("`Reply to a telegram media first!`")
+    # Downloading the file
+    m_file = await r_msg.download()
+    # Login to mega.nz account
+    m_client = await loginToMega(creds)
+    loop = get_running_loop()
+    await loop.run_in_executor(None, partial(UploadToMega, message, m_file, m_client))
 
 
 
@@ -80,7 +79,7 @@ async def gofiles_up(_, message: Message):
     await gofile_msg.edit("`Download has started! This may take a while!`")
     start_time = time()
     dl_go_f = await r_go_f.download(progress=progress_for_pyrogram, progress_args=("**💫 Downloading... 💫** \n", gofile_msg, start_time))
-    desc = go_f_arg if go_f_arg else None
+    desc = go_f_arg or None
     # Gofile2 client
     go_client = Async_Gofile()
     await gofile_msg.edit("`Upload has started! This may take a while!`")

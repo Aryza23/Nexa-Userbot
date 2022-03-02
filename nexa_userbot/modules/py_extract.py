@@ -32,7 +32,7 @@ mod_file = os.path.basename(__file__)
 async def extract_all_aud(_, message: Message):
     replied_msg = message.reply_to_message
     ext_text = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
-    ext_out_path = os.getcwd() + "/" + "NexaUB/py_extract/audios"
+    ext_out_path = f'{os.getcwd()}/NexaUB/py_extract/audios'
     if not replied_msg:
         await ext_text.edit("`Please reply to a valid video file!`")
         return

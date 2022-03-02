@@ -13,8 +13,7 @@ async def getMegaEmailandPass():
         return [m_email, m_pass]
 
 async def loginToMega(e_and_m):
-    client = Mega().login(e_and_m[0], e_and_m[1])
-    return client
+    return Mega().login(e_and_m[0], e_and_m[1])
 
 def UploadToMega(msg, file, mega):
     try:

@@ -16,18 +16,12 @@ async def set_log_channel(tgcc_id):
 
 async def get_log_channel():
     log_channel = await nexaub_conf.find_one({"_id": "LOG_CHANNEL_ID"})
-    if log_channel:
-        return int(log_channel["nexaub_conf"])
-    else:
-        return None
+    return int(log_channel["nexaub_conf"]) if log_channel else None
 
 # Database for custom alive message
 
 async def set_custom_alive_msg(a_text=None):
-    if a_text is None:
-        alive_msg = "Heya, I'm Using Nexa Userbot"
-    else:
-        alive_msg = a_text
+    alive_msg = "Heya, I'm Using Nexa Userbot" if a_text is None else a_text
     p_alive_msg = await nexaub_conf.find_one({"_id": "CUSTOM_ALIVE_MSG"})
     if p_alive_msg:
         await nexaub_conf.update_one({"_id": "CUSTOM_ALIVE_MSG"}, {"$set": {"nexaub_conf": alive_msg}})
@@ -36,10 +30,7 @@ async def set_custom_alive_msg(a_text=None):
 
 async def get_custom_alive_msg():
     alive_msg = await nexaub_conf.find_one({"_id": "CUSTOM_ALIVE_MSG"})
-    if alive_msg:
-        return alive_msg["nexaub_conf"]
-    else:
-        return None
+    return alive_msg["nexaub_conf"] if alive_msg else None
 
 # Database for arq client
 async def set_arq_key(arq_key):
@@ -66,11 +57,7 @@ async def set_custom_var(var, value):
 
 async def get_custom_var(var):
     custom_var = await nexaub_conf.find_one({"_id": var})
-    if not custom_var:
-        return None
-    else:
-        g_custom_var = custom_var["nexaub_conf"]
-        return g_custom_var
+    return None if not custom_var else custom_var["nexaub_conf"]
 
 async def del_custom_var(var):
     custom_var = await nexaub_conf.find_one({"_id": var})

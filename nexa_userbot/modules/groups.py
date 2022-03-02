@@ -67,7 +67,7 @@ async def purge_this(_, message: Message):
       await NEXAUB.delete_messages(chat_id=message.chat.id, message_ids=mid_list, revoke=True) # Docs says revoke Defaults to True but...
       mid_list = []
     # Let's check if there are any other messages left to delete. Just like that 0.1% bacteria that can't be destroyed by soap
-    if len(mid_list) > 0:
+    if mid_list:
       await NEXAUB.delete_messages(chat_id=message.chat.id, message_ids=mid_list, revoke=True)
 
 
@@ -87,7 +87,7 @@ async def ban_usr(_, message: Message):
     # let's just assume that it'suser id that want to ban
     else:
       b_usr_id = ops_n_arg[1]
-  
+
   if r_msg:
     b_usr_id = r_msg.from_user.id
     if args:
@@ -99,14 +99,13 @@ async def ban_usr(_, message: Message):
     return await b_k_msg.edit("`Lmao! Tryna ban my devs? Using me? 😂`")
   elif b_usr_id == is_me.id:
     return await b_k_msg.edit("`Why should I ban my self?`")
+  await message.chat.kick_member(user_id=int(b_usr_id))
   # If command calls with -k flag ub'll just ban user and unban after 5 secs
   if just_kick:
-    await message.chat.kick_member(user_id=int(b_usr_id))
     await b_k_msg.edit(f"**Kicked ✊** \n\n**User ID:** `{b_usr_id}` \n\n`⚠️ Unbanning after 5 secs! ⚠️`")
     asyncio.sleep(5)
     await message.chat.unban_member(user_id=int(b_usr_id))
   else:
-    await message.chat.kick_member(user_id=int(b_usr_id))
     await b_k_msg.edit(f"**Banned 👊** \n\n**User ID:** `{b_usr_id}`")
 
 

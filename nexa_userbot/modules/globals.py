@@ -47,10 +47,7 @@ async def me_goin_oflin(_, message: Message):
     gban_rsn = get_arg(message)
     nexaub_owner = await NEXAUB.get_me()
     if r_msg:
-        if gban_rsn:
-            gban_rson = gban_rsn
-        else:
-            gban_rson = "That guy is a creepy scammer!"
+        gban_rson = gban_rsn or "That guy is a creepy scammer!"
         gban_uid = r_msg.from_user.id
     elif gban_rsn:
         gets_user_arg = gban_rsn.split(None)
@@ -93,8 +90,7 @@ async def me_goin_oflin(_, message: Message):
 async def me_goin_oflin(_, message: Message):
     ungban_msg = await e_or_r(nexaub_message=message, msg_text="`Processing...`")
     r_ug_msg = message.reply_to_message
-    gban_usr = get_arg(message)
-    if gban_usr:
+    if gban_usr := get_arg(message):
         if gban_usr.isnumeric():
             ungban_uid = gban_usr
         else:
@@ -135,14 +131,12 @@ async def me_goin_oflin(_, message: Message):
     for gb in gban_list:
         gban_txt += f" ⤷ **User:** `{gb['gbanned_usr']}` \n ⤷ **Reason:** `{gb['reason_for_gban']}`"
     if len(gban_txt) > 4096:
-        file = open("NEXAUB_Gban_List.txt", "w+")
-        file.write(gban_txt)
-        file.close()
+        with open("NEXAUB_Gban_List.txt", "w+") as file:
+            file.write(gban_txt)
         await NEXAUB.send_document(
-            message.chat.id,
-            "NEXAUB_Gban_List.txt",
-            caption=f"Gban List"
+            message.chat.id, "NEXAUB_Gban_List.txt", caption="Gban List"
         )
+
         os.remove("NEXAUB_Gban_List.txt")
     else:
         await glist_msg.edit(gban_txt)
